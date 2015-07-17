@@ -11,15 +11,15 @@ namespace Tasks.Services
 {
     public class SubTaskService
     {
-        private readonly SubTaskRepository _repository;
-        private readonly TaskRepository _taskRepository;
+        private readonly IRepository<SubTask> _repository;
+        private readonly IRepository<Task> _taskRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public SubTaskService()
+        public SubTaskService(IUnitOfWorkFactory factory)
         {
-            _repository = new SubTaskRepository(new TasksContext() as DbContext);
-            _taskRepository = new TaskRepository(new TasksContext() as DbContext);
-            _unitOfWork = new UnitOfWork();
+            _unitOfWork = factory.Create();
+            _taskRepository = _unitOfWork.Repository<Task>();
+            _repository = _unitOfWork.Repository<SubTask>();
         }
 
         public IEnumerable<SubTask> GetSubTasks(Int32 taskId)

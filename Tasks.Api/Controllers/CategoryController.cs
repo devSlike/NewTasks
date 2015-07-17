@@ -1,30 +1,44 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Tasks.DataAccess.Entities;
+using Tasks.DataAccess.Infrastructure;
 using Tasks.Services;
 
 namespace Tasks.Api.Controllers
 {
     public class CategoryController : ApiController
     {
-        private readonly CategoryService service = new CategoryService();
+        private readonly CategoryService service;
+        private readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+
+        public CategoryController()
+        {
+            IoC.Init();
+            var uowf = IoC.Get<IUnitOfWorkFactory>();
+            service = new CategoryService(uowf);
+        }
 
         // GET api/category
         [HttpGet]
-        public IEnumerable<Category> Get()
+        public String Get()
         {
-            return service.GetCategories();
+            var cats = service.GetCategories();
+            var json = JsonConvert.SerializeObject(cats, jsonSettings);
+            return json;
         }
 
         // GET api/category/5
         [HttpGet]
-        public Category Get(int id)
+        public String Get(int id)
         {
-            return service.GetCategory(id);
+            var cat = service.GetCategory(id);
+            var json = JsonConvert.SerializeObject(cat, jsonSettings);
+            return json;
         }
 
         // POST api/category

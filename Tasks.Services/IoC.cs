@@ -12,6 +12,7 @@ namespace Tasks.Services
     public class IoC
     {
         private static Lazy<IKernel> _kernel = new Lazy<IKernel>(() => new StandardKernel());
+        private static Boolean _isInit = false;
 
         private static IKernel Kernel
         {
@@ -41,15 +42,12 @@ namespace Tasks.Services
 
         public static void Init()
         {
+            if (_isInit) return;
             IoC.Init((kernel) =>
             {
-                kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InSingletonScope();
-                //kernel.Bind<ICategoryRepository>().To<CategoryRepository>().InTransientScope();
-                //kernel.Bind<ITaskRepository>().To<TaskRepository>().InTransientScope();
-                //kernel.Bind<ISubTaskRepository>().To<SubTaskRepository>().InTransientScope();
+                kernel.Bind<IUnitOfWorkFactory>().To<UnitOfWorkFactory>().InSingletonScope();
             });
+            _isInit = true;
         }
-
     }
-
 }

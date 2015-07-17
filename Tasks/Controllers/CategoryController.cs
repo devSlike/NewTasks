@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -18,7 +19,9 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            return View(_controller.Get());
+            var s = _controller.Get();
+            var items = JsonConvert.DeserializeObject<List<Category>>(s);
+            return View(items);
         }
 
         //
@@ -26,7 +29,8 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Details(int id = 0)
         {
-           Category category = _controller.Get(id);
+            var s = _controller.Get(id);
+            Category category = JsonConvert.DeserializeObject<Category>(s);
             if (category == null)
             {
                 return HttpNotFound();
@@ -44,7 +48,6 @@ namespace Tasks.Controllers
 
         //
         // POST: /Category/Create
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Category category)
@@ -57,13 +60,13 @@ namespace Tasks.Controllers
 
             return View(category);
         }
-
         
         // GET: /Category/Edit/5
         [HttpGet]
         public ActionResult Edit(int id = 0)
         {
-            Category category = _controller.Get(id);
+            var s = _controller.Get(id);
+            Category category = JsonConvert.DeserializeObject<Category>(s);
             if (category == null)
             {
                 return HttpNotFound();
@@ -91,7 +94,8 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Delete(int id = 0)
         {
-            Category category = _controller.Get(id);
+            var s = _controller.Get(id);
+            Category category = JsonConvert.DeserializeObject<Category>(s);
             if (category == null)
             {
                 return HttpNotFound();

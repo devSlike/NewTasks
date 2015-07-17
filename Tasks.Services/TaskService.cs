@@ -11,13 +11,13 @@ namespace Tasks.Services
 {
     public class TaskService
     {
-        private readonly TaskRepository _repository;
+        private readonly IRepository<Task> _repository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TaskService()
+        public TaskService(IUnitOfWorkFactory factory)
         {
-            _repository = new TaskRepository(new TasksContext() as DbContext);
-            _unitOfWork = new UnitOfWork();
+            _unitOfWork = factory.Create();
+            _repository = _unitOfWork.Repository<Task>();
         }
 
         public IEnumerable<Task> GetTasks()

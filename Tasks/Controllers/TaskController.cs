@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -18,9 +19,22 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            //var tasks = db.Tasks.Include(t => t.Category);
-            var tasks = _controller.Get();
-            return View(tasks.ToList());
+            var tasks = GetTasks();
+            return View(tasks);
+        }
+
+        private List<Task> GetTasks()
+        {
+            try
+            {
+                var s = _controller.Get();
+                var tasks = JsonConvert.DeserializeObject<List<Task>>(s);
+                return tasks;
+            }
+            catch
+            {
+                return new List<Task>();
+            }
         }
 
         //
@@ -28,7 +42,7 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Details(int id = 0)
         {
-            Task task = _controller.Get(id);
+            Task task = GetTaskById(id);
             if (task == null)
             {
                 return HttpNotFound();
@@ -49,13 +63,14 @@ namespace Tasks.Controllers
         {
             using (var cat = new Tasks.Api.Controllers.CategoryController())
             {
-                return new SelectList(cat.Get().ToList(), "Id", "CategoryName");
+                var s = cat.Get();
+                var items = JsonConvert.DeserializeObject<List<Category>>(s);
+                return new SelectList(items, "Id", "CategoryName");
             }
         }
 
         //
         // POST: /Task/Create
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Task task)
@@ -75,7 +90,7 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Edit(int id = 0)
         {
-            Task task = _controller.Get(id);
+            Task task = GetTaskById(id);
             if (task == null)
             {
                 return HttpNotFound();
@@ -84,9 +99,22 @@ namespace Tasks.Controllers
             return View(task);
         }
 
+        private Task GetTaskById(int id)
+        {
+            try
+            {
+                var s = _controller.Get(id);
+                Task task = JsonConvert.DeserializeObject<Task>(s);
+                return task;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         //
         // POST: /Task/Edit/5
-
         [HttpPut]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Task task)
@@ -105,7 +133,7 @@ namespace Tasks.Controllers
         [HttpGet]
         public ActionResult Delete(int id = 0)
         {
-            Task task = _controller.Get(id);
+            Task task = GetTaskById(id);
             if (task == null)
             {
                 return HttpNotFound();
@@ -115,7 +143,6 @@ namespace Tasks.Controllers
 
         //
         // POST: /Task/Delete/5
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
@@ -134,7 +161,6 @@ namespace Tasks.Controllers
 
         //
         // POST: /Task/DeleteCompleted/
-
         [HttpPost, ActionName("DeleteCompleted")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteCompletedConfirmed()

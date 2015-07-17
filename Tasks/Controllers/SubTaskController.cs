@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -16,8 +17,22 @@ namespace Tasks.Controllers
         public PartialViewResult _GetSubTasks(int id = 0)
         {
             ViewBag.TaskId = id;
-            var subTasks = _controller.GetForTask(id);
-            return PartialView(subTasks.ToList());
+            var items = GetSubTasksForTask(id);
+            return PartialView(items);
+        }
+
+        private List<SubTask> GetSubTasksForTask(int id)
+        {
+            try
+            {
+                var s = _controller.GetForTask(id);
+                var items = JsonConvert.DeserializeObject<List<SubTask>>(s);
+                return items;
+            }
+            catch
+            {
+                return new List<SubTask>();
+            }
         }
 
         [ChildActionOnly]
@@ -37,17 +52,16 @@ namespace Tasks.Controllers
             }
 
             ViewBag.TaskId = subtask.TaskId;
-            var subTasks = _controller.GetForTask(subtask.TaskId);
-            return PartialView("_GetSubTasks", subTasks.ToList());
+            var subTasks = GetSubTasksForTask(subtask.TaskId);
+            return PartialView("_GetSubTasks", subTasks);
         }
 
         //
         // GET: /SubTask/Edit/5
-
         [HttpGet]
         public ActionResult Edit(int id = 0)
         {
-            SubTask subtask = _controller.Get(id);
+            SubTask subtask = GetSubTaskById(id);
             if (subtask == null)
             {
                 return HttpNotFound();
@@ -55,9 +69,22 @@ namespace Tasks.Controllers
             return View(subtask);
         }
 
+        private SubTask GetSubTaskById(int id)
+        {
+            try
+            {
+                var s = _controller.Get(id);
+                SubTask subtask = JsonConvert.DeserializeObject<SubTask>(s);
+                return subtask;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         //
         // POST: /SubTask/Edit/5
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(SubTask subtask)
@@ -72,11 +99,10 @@ namespace Tasks.Controllers
 
         //
         // GET: /SubTask/Delete/5
-
         [HttpGet]
         public ActionResult Delete(int id = 0)
         {
-            SubTask subtask = _controller.Get(id);
+            SubTask subtask = GetSubTaskById(id);
             if (subtask == null)
             {
                 return HttpNotFound();
@@ -86,12 +112,11 @@ namespace Tasks.Controllers
 
         //
         // POST: /SubTask/Delete/5
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            SubTask subtask = _controller.Get(id);
+            SubTask subtask = GetSubTaskById(id);
             var taskId = subtask.TaskId;
             _controller.Delete(id);
             return RedirectToAction("Details", "Task", new { id = taskId });

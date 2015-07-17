@@ -1,30 +1,44 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Tasks.DataAccess.Entities;
+using Tasks.DataAccess.Infrastructure;
 using Tasks.Services;
 
 namespace Tasks.Api.Controllers
 {
     public class SubTaskController : ApiController
     {
-        private readonly SubTaskService service = new SubTaskService();
+        private readonly SubTaskService service;
+        private readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
 
+        public SubTaskController()
+        {
+            IoC.Init();
+            var uowf = IoC.Get<IUnitOfWorkFactory>();
+            service = new SubTaskService(uowf);
+        }
+        
         // GET api/subtask
         [HttpGet]
-        public IEnumerable<SubTask> GetForTask(Int32 taskId)
+        public String GetForTask(Int32 taskId)
         {
-            return service.GetSubTasks(taskId);
+            var tasks = service.GetSubTasks(taskId);
+            var json = JsonConvert.SerializeObject(tasks, jsonSettings);
+            return json;
         }
 
         // GET api/subtask/5
         [HttpGet]
-        public SubTask Get(int id)
+        public String Get(int id)
         {
-            return service.GetSubTask(id);
+            var task = service.GetSubTask(id);
+            var json = JsonConvert.SerializeObject(task, jsonSettings);
+            return json;
         }
 
         // POST api/subtask

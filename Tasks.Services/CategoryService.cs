@@ -11,16 +11,13 @@ namespace Tasks.Services
 {
     public class CategoryService
     {
-        private readonly CategoryRepository _repository;
+        private readonly IRepository<Category> _repository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryService()
+        public CategoryService(IUnitOfWorkFactory factory)
         {
-            //IoC.Init();
-            //_unitOfWork = IoC.Get<IUnitOfWork>();
-            _repository = new CategoryRepository(new TasksContext() as DbContext);
-            _unitOfWork = new UnitOfWork();
-            //_repository = _unitOfWork.Repository<CategoryRepository>();
+            _unitOfWork = factory.Create();
+           _repository = _unitOfWork.Repository<Category>();
         }
 
         public IEnumerable<Category> GetCategories()
