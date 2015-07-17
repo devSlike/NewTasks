@@ -18,7 +18,7 @@ namespace Tasks.DataAccess.Entities
         public int Id { get; set; }
         
         [Display(Name = "Date"), DataType(DataType.Date)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd.MM.yyyy}")]
         public DateTime Date { get; set; }
         
         [Required(ErrorMessage = "Enter task name"), StringLength(100), Display(Name = "Task name"), DataType(DataType.Text)]
